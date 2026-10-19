@@ -1,0 +1,7 @@
+html { color-scheme: dark; background: #111c1e; }
+body { margin: 0; }
+* { box-sizing: border-box; }
+svg { flex-shrink: 0; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

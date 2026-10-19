@@ -1,0 +1,30 @@
+name: Check frontend
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run verify:build
+      - name: Build runtime image
+        run: docker build -f Dockerfile.prod -t mirror-admin:ci .
+      - name: Verify non-root runtime and static delivery
+        run: |
+          docker run --rm --entrypoint sh mirror-admin:ci -c 'test "$(id -u)" != 0'
+          trap 'docker logs mirror-admin-ci; docker rm -f mirror-admin-ci' EXIT
+          docker run --detach --name mirror-admin-ci --read-only --cap-drop ALL \
+            --tmpfs /tmp --tmpfs /etc/nginx/conf.d:uid=101,gid=101,mode=0755 \
+            -e ADMIN_ALLOWED_HOSTS=localhost -p 127.0.0.1:18081:8080 mirror-admin:ci
+          curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://localhost:18081/health
+          curl --fail --silent http://localhost:18081/ > /dev/null
