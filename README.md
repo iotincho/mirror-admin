@@ -95,3 +95,11 @@ CI de PR agrega build Docker y una prueba HTTP del runtime sin root. El workflow
 (por ejemplo, `martinbarrera/mirror-admin`) y los secrets `DOCKERHUB_USERNAME` y
 `DOCKERHUB_TOKEN`. Desplegar el tag inmutable fijado en Compose. Esta entrega
 prepara el workflow; no publica imágenes ni configura secretos remotos.
+
+
+La publicación también admite ejecución manual desde Actions sobre `main`.
+El workflow de mirror-deploy puede dispararla y esperar su resultado; requiere
+el secret `MIRROR_ADMIN_ACTIONS_TOKEN` en mirror-deploy, con permiso Actions: write
+sobre este repositorio. El build, los tags de imagen y los tags Git se generan
+siempre aquí. Ver [configuración del disparador](../mirror-deploy/README.md).
+Ambos workflows deben estar en `main` para habilitar ese recorrido.

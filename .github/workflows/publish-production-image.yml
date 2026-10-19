@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main]
     types: [closed]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,15 +15,16 @@ concurrency:
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-24.04
     env:
       IMAGE: docker.io/${{ vars.DOCKERHUB_IMAGE }}
+      SOURCE_SHA: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
     steps:
-      - name: Check out the merge commit
+      - name: Check out the release commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ env.SOURCE_SHA }}
           fetch-depth: 0
 
       - name: Validate Docker Hub configuration
@@ -82,17 +84,16 @@ jobs:
             ${{ env.IMAGE }}:${{ steps.version.outputs.version }}
             ${{ env.IMAGE }}:latest
           labels: |
-            org.opencontainers.image.revision=${{ github.event.pull_request.merge_commit_sha }}
+            org.opencontainers.image.revision=${{ env.SOURCE_SHA }}
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.version=${{ steps.version.outputs.version }}
 
       - name: Create Git release tag
         env:
           VERSION: ${{ steps.version.outputs.version }}
-          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag --annotate "$VERSION" "$MERGE_SHA" --message "Production release $VERSION"
+          git tag --annotate "$VERSION" "$SOURCE_SHA" --message "Production release $VERSION"
           git push origin "refs/tags/$VERSION"
