@@ -6,6 +6,8 @@ export const UserSchema = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
   is_active: z.boolean(),
+  laboratory_enabled: z.boolean(),
+  laboratory_global_enabled: z.boolean(),
   created_at: instant.nullable(),
   last_activity_at: instant.nullable(),
   notes_count: count.nullable(),

@@ -90,3 +90,31 @@ describe('períodos y errores del dashboard', () => {
     await expect(createApiServices('/api/admin', request).dataProvider.getOne('users', { id: demoUsers[0].id })).rejects.toMatchObject({ status: 500, message: 'La API administrativa respondió 500.' });
   });
 });
+
+
+describe('acceso experimental por cuenta', () => {
+  it('solo emite PATCH del permiso y mantiene separadas las cuentas', async () => {
+    const user = { ...demoUsers[0], laboratory_enabled: true };
+    const request = vi.fn<typeof fetch>().mockResolvedValue(Response.json(user));
+    const provider = createApiServices('/api/admin', request).dataProvider;
+    const result = await provider.update('users', { id: user.id, data: { laboratory_enabled: true }, previousData: demoUsers[0] });
+    expect(result.data.laboratory_enabled).toBe(true);
+    expect(request.mock.calls[0][0]).toBe(`/api/admin/users/${user.id}/laboratory`);
+    expect(request.mock.calls[0][1]).toMatchObject({ method: 'PATCH', body: JSON.stringify({ laboratory_enabled: true }), headers: { 'Content-Type': 'application/json' } });
+    for (const data of [{ is_active: true }, { laboratory_enabled: true, is_superuser: true }, { laboratory_enabled: 'true' }]) {
+      await expect(provider.update('users', { id: user.id, data, previousData: demoUsers[0] })).rejects.toMatchObject({ status: 405 });
+    }
+    expect(request).toHaveBeenCalledTimes(1);
+    const demo = createDemoServices().dataProvider;
+    await demo.update('users', { id: user.id, data: { laboratory_enabled: true }, previousData: demoUsers[0] });
+    expect((await demo.getOne('users', { id: user.id })).data.laboratory_enabled).toBe(true);
+    expect((await demo.getOne('users', { id: demoUsers[1].id })).data.laboratory_enabled).toBe(false);
+    expect(demoUsers[0].laboratory_enabled).toBe(false);
+  });
+  it('expone un guardado fallido sin simular un permiso concedido', async () => {
+    const request = vi.fn<typeof fetch>().mockResolvedValue(Response.json({}, { status: 503 }));
+    await expect(createApiServices('/api/admin', request).dataProvider.update('users', {
+      id: demoUsers[0].id, data: { laboratory_enabled: true }, previousData: demoUsers[0],
+    })).rejects.toMatchObject({ status: 503 });
+  });
+});

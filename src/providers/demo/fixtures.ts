@@ -1,15 +1,15 @@
 import type { AdminUser, DashboardData, Period } from '../contracts';
 
 export const demoUsers: AdminUser[] = [
-  { id: '10000000-0000-4000-8000-000000000001', email: 'lucia@example.com', is_active: true, created_at: '2026-10-02T14:00:00Z', last_activity_at: '2026-10-16T14:48:00Z', notes_count: 38 },
-  { id: '10000000-0000-4000-8000-000000000002', email: 'martin@example.com', is_active: true, created_at: '2026-10-03T14:00:00Z', last_activity_at: '2026-10-16T14:25:00Z', notes_count: 24 },
-  { id: '10000000-0000-4000-8000-000000000003', email: 'sofia@example.com', is_active: true, created_at: null, last_activity_at: '2026-10-16T14:00:00Z', notes_count: 17 },
-  { id: '10000000-0000-4000-8000-000000000004', email: 'nicolas@example.com', is_active: false, created_at: '2026-10-08T14:00:00Z', last_activity_at: '2026-10-15T21:42:00Z', notes_count: 9 },
-  { id: '10000000-0000-4000-8000-000000000005', email: 'valentina@example.com', is_active: true, created_at: '2026-10-11T14:00:00Z', last_activity_at: '2026-10-15T19:10:00Z', notes_count: 12 },
+  { id: '10000000-0000-4000-8000-000000000001', email: 'lucia@example.com', laboratory_enabled: false, laboratory_global_enabled: true, is_active: true, created_at: '2026-10-02T14:00:00Z', last_activity_at: '2026-10-16T14:48:00Z', notes_count: 38 },
+  { id: '10000000-0000-4000-8000-000000000002', email: 'martin@example.com', laboratory_enabled: false, laboratory_global_enabled: true, is_active: true, created_at: '2026-10-03T14:00:00Z', last_activity_at: '2026-10-16T14:25:00Z', notes_count: 24 },
+  { id: '10000000-0000-4000-8000-000000000003', email: 'sofia@example.com', laboratory_enabled: false, laboratory_global_enabled: true, is_active: true, created_at: null, last_activity_at: '2026-10-16T14:00:00Z', notes_count: 17 },
+  { id: '10000000-0000-4000-8000-000000000004', email: 'nicolas@example.com', laboratory_enabled: false, laboratory_global_enabled: true, is_active: false, created_at: '2026-10-08T14:00:00Z', last_activity_at: '2026-10-15T21:42:00Z', notes_count: 9 },
+  { id: '10000000-0000-4000-8000-000000000005', email: 'valentina@example.com', laboratory_enabled: false, laboratory_global_enabled: true, is_active: true, created_at: '2026-10-11T14:00:00Z', last_activity_at: '2026-10-15T19:10:00Z', notes_count: 12 },
   ...Array.from({ length: 19 }, (_, index): AdminUser => ({
     id: `10000000-0000-4000-8000-${String(index + 6).padStart(12, '0')}`,
     email: `cuenta${String(index + 6).padStart(2, '0')}@example.com`,
-    is_active: index !== 4,
+    laboratory_enabled: false, laboratory_global_enabled: true, is_active: index !== 4,
     created_at: index % 4 === 0 ? null : `2026-10-${String(1 + index % 12).padStart(2, '0')}T14:00:00Z`,
     last_activity_at: index % 3 === 0 ? null : '2026-10-14T17:20:00Z',
     notes_count: index % 7 === 0 ? null : index + 2,
