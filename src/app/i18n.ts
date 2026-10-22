@@ -49,5 +49,6 @@ export const i18nProvider = polyglotI18nProvider(() => ({
     },
     validation: { ...englishMessages.ra.validation, required: 'Requerido' },
   },
+  laboratory: { access_enabled: 'Acceso a Laboratorio habilitado.', access_disabled: 'Acceso a Laboratorio deshabilitado.' },
   resources: { users: { name: 'Usuario |||| Usuarios', fields: { email: 'Correo electrónico', id: 'Identificador', is_active: 'Cuenta habilitada', created_at: 'Fecha de alta', last_activity_at: 'Última actividad', notes_count: 'Notas existentes' } } },
 }), 'es');

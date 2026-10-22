@@ -17,11 +17,22 @@ server {
 
     location = /health { access_log off; return 200 'ok'; }
     location = /api/admin { return 404; }
-    location ^~ /api/admin/ {
+    # This is the only administrative mutation exposed by the LAN proxy.
+    location ~ "^/api/admin/users/[0-9a-fA-F-]{36}/laboratory$" {
+        if ($request_method != PATCH) { return 405; }
+        set $admin_upstream admin-api:8000;
+        proxy_pass http://$admin_upstream;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 30s;
+        proxy_cache off;
+    }
+    location /api/admin/ {
         if ($request_method !~ ^(GET|HEAD)$) { return 405; }
         set $admin_upstream admin-api:8000;
         proxy_pass http://$admin_upstream;
-        proxy_set_header Host $host;
+        proxy_set_header Host $http_host;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_connect_timeout 5s;
         proxy_read_timeout 30s;

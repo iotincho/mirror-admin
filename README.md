@@ -1,6 +1,6 @@
 # mirror-admin
 
-Panel administrativo de El Espejo con React-admin, TypeScript y Vite. Dashboard, listado y detalle de Usuarios de solo lectura, conectados a la API administrativa de mirror-core.
+Panel administrativo de El Espejo con React-admin, TypeScript y Vite. Dashboard, listado y detalle de Usuarios, con acceso experimental a Laboratorio por cuenta, conectados a la API administrativa de mirror-core.
 
 ## Desarrollo
 
@@ -61,7 +61,7 @@ Preview sirve el build en http://127.0.0.1:4176 y requiere la API detrás de un 
 
 - `src/app`: React-admin, layout, navegación y traducciones.
 - `src/features/dashboard`: métricas, gráfico accesible y tabla diaria.
-- `src/features/users`: listado y detalle de solo lectura.
+- `src/features/users`: listado, detalle y permiso de Laboratorio por cuenta.
 - `src/providers`: contratos validados, adaptador HTTP y demo aislada.
 - `src/theme`: tokens de El Espejo y ajustes MUI.
 
@@ -78,8 +78,8 @@ docker build -f Dockerfile.prod -t mirror-admin:lan-validation .
 
 La imagen sirve el build con Nginx sin root en el puerto 8080. Requiere
 `ADMIN_ALLOWED_HOSTS` con hosts exactos separados por espacios y resolver
-`admin-api:8000` en su red Docker. Preserva `/api/admin/*`; solo admite GET/HEAD en
-el proxy administrativo. No contiene demo, credenciales ni servidor de desarrollo.
+`admin-api:8000` en su red Docker. Preserva `/api/admin/*`; admite GET/HEAD y, exclusivamente para `/api/admin/users/{id}/laboratory`, PATCH.
+Conserva el host y el puerto del navegador para comprobar el origen de la mutación. No contiene demo, credenciales ni servidor de desarrollo.
 HTML/API tienen `no-store`; assets con hash tienen caché inmutable.
 
 El [runbook de mirror-deploy](../mirror-deploy/ADMIN-LAN.md) configura el frontend,
@@ -95,3 +95,37 @@ CI de PR agrega build Docker y una prueba HTTP del runtime sin root. El workflow
 (por ejemplo, `martinbarrera/mirror-admin`) y los secrets `DOCKERHUB_USERNAME` y
 `DOCKERHUB_TOKEN`. Desplegar el tag inmutable fijado en Compose. Esta entrega
 prepara el workflow; no publica imágenes ni configura secretos remotos.
+
+
+## Acceso experimental a Laboratorio
+
+En **Usuarios → Ver cuenta → Laboratorio**, habilitar o quitar el permiso de esa
+cuenta. Se guarda al cambiar el interruptor y muestra errores de confirmación.
+El panel muestra el permiso en la lista y advierte si el interruptor global está apagado.
+
+Aplicar `alembic upgrade head` (revisión `20261021_17`) en mirror-core antes de
+arrancar las nuevas versiones. `PERSONAL_AXES_ENABLED=true` debe compartirse entre
+API pública, workers, dispatcher y admin-api. La capacidad efectiva requiere el
+interruptor global y `user.laboratory_enabled=true`; por defecto todas las cuentas
+quedan sin acceso. El permiso no habilita una cuenta desactivada.
+
+La única escritura habilitada en el panel y en su proxy es
+`PATCH /api/admin/users/{id}/laboratory` con `{"laboratory_enabled": true|false}`.
+El backend rechaza campos extra, booleanos convertidos y solicitudes de otro origen.
+Se mantiene el aislamiento local/LAN y la API pública no registra rutas de admin.
+Deshabilitar no borra datos: impide nuevas pruebas y reservas automáticas de ejes,
+mientras los trabajos aceptados antes del cambio pueden terminar.
+
+
+Validación de la extensión: 14 pruebas de proveedor, lint, tipos, build y
+`verify:build`. La revisión de Chrome cubrió persistencia tras recarga, errores de
+guardado, aviso global apagado y anchos 320/390/768/1440. Capturas con datos
+sintéticos en [docs/validation/laboratory-access-2026-10-21](docs/validation/laboratory-access-2026-10-21).
+El proxy se verificó además en un contenedor Nginx aislado sin root: PATCH exclusivo,
+bloqueo de otras mutaciones y preservación de Host/puerto.
+
+Para repetir el recorrido visual con Playwright instalado y el panel de desarrollo
+abierto, ejecutar `node tests/integration/laboratory-browser.cjs`. Acepta
+`ADMIN_LABORATORY_ORIGIN`, `LABORATORY_PLAYWRIGHT_MODULE`,
+`LABORATORY_CHROMIUM_PATH` y `ADMIN_LABORATORY_SCREENSHOTS`. La API se simula en ese
+recorrido; las pruebas de SQL/autorización reales pertenecen a mirror-core.

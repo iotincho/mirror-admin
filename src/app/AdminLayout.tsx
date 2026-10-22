@@ -9,7 +9,7 @@ import { settings } from '../config/settings';
 function AdminAppBar(props: AppBarProps) {
   return <AppBar {...props} userMenu={false} toolbar={false} color="default" sx={{ boxShadow: 'none', borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.default', '& .RaAppBar-toolbar': { minHeight: 70 } }}>
     <Typography fontSize={13} color="text.secondary" sx={{ flex: 1 }}>El Espejo <Box component="span" sx={{ mx: 1.5, color: 'divider' }}>/</Box> Administración</Typography>
-    <Chip size="small" variant="outlined" color={settings.dataMode === 'demo' ? 'warning' : 'default'} label={settings.dataMode === 'demo' ? 'Demo · Datos ficticios' : 'Solo lectura'} sx={{ fontSize: { xs: 10, sm: 11 } }} />
+    <Chip size="small" variant="outlined" color={settings.dataMode === 'demo' ? 'warning' : 'default'} label={settings.dataMode === 'demo' ? 'Demo · Datos ficticios' : 'Panel LAN'} sx={{ fontSize: { xs: 10, sm: 11 } }} />
   </AppBar>;
 }
 
@@ -25,7 +25,7 @@ function AdminMenu() {
       <Menu.Item to="/" primaryText="Dashboard" leftIcon={<DashboardOutlinedIcon />} />
       <Menu.Item to="/users" primaryText="Usuarios" leftIcon={<PeopleOutlineIcon />} />
     </Menu>
-    {open && <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, p: 2, mt: 6 }}><ShieldOutlinedIcon color="secondary" sx={{ mb: 1 }} /><Typography fontSize={12} mb={1}>Una mirada a la plataforma</Typography><Typography fontSize={11} color="text.secondary" lineHeight={1.8}>Métricas de uso, sin acceder al contenido de las notas.</Typography><Divider sx={{ my: 1.5 }} /><Typography fontSize={10} color="text.secondary">Dashboard y cuentas · Solo lectura</Typography></Box>}
+    {open && <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, p: 2, mt: 6 }}><ShieldOutlinedIcon color="secondary" sx={{ mb: 1 }} /><Typography fontSize={12} mb={1}>Una mirada a la plataforma</Typography><Typography fontSize={11} color="text.secondary" lineHeight={1.8}>Métricas de uso, sin acceder al contenido de las notas.</Typography><Divider sx={{ my: 1.5 }} /><Typography fontSize={10} color="text.secondary">Métricas y acceso a Laboratorio</Typography></Box>}
   </Box>;
 }
 
