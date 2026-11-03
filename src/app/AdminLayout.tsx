@@ -1,6 +1,8 @@
-import { AppBar, Layout, Menu, useSidebarState } from 'react-admin';
-import type { AppBarProps, LayoutProps } from 'react-admin';
-import { Box, Chip, Divider, Stack, Typography } from '@mui/material';
+import { AppBar, Layout, Menu, Sidebar, useSidebarState } from 'react-admin';
+import { useEffect } from 'react';
+import type { AppBarProps, LayoutProps, SidebarProps } from 'react-admin';
+import { Box, Chip, Divider, Stack, Typography, useMediaQuery } from '@mui/material';
+import type { Theme } from '@mui/material';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
@@ -29,8 +31,18 @@ function AdminMenu() {
   </Box>;
 }
 
+function AdminSidebar(props: SidebarProps) {
+  const mobile = useMediaQuery<Theme>(theme => theme.breakpoints.down('sm'));
+  const [open] = useSidebarState();
+  // A closed temporary menu must release its modal state even with reduced motion.
+  return <Sidebar {...props} key={mobile ? `mobile-${open}` : 'desktop'} />;
+}
+
 export function AdminLayout(props: LayoutProps) {
-  return <Layout {...props} appBar={AdminAppBar} menu={AdminMenu} sx={{
+  const mobile = useMediaQuery<Theme>(theme => theme.breakpoints.down('sm'));
+  const [, setSidebarOpen] = useSidebarState();
+  useEffect(() => { if (mobile) setSidebarOpen(false); }, [mobile, setSidebarOpen]);
+  return <Layout {...props} appBar={AdminAppBar} menu={AdminMenu} sidebar={AdminSidebar} sx={{
     '& .RaLayout-appFrame': { marginTop: '70px' },
     '& .RaLayout-content': { px: { xs: 2, sm: 3, lg: 5 }, pt: { xs: 3, md: 4 }, pb: 4, minWidth: 0 },
     '& .RaSidebar-docked .RaSidebar-fixed': { borderRight: '1px solid', borderColor: 'divider', bgcolor: '#142124', width: 'inherit', height: 'calc(100dvh - 70px)', overflowY: 'auto' },

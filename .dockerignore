@@ -10,4 +10,5 @@ dist
 coverage
 tests
 prototypes
+docs/prototypes
 _app_documents

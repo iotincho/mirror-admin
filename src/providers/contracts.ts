@@ -1,4 +1,5 @@
 import { z } from 'zod';
+export type { JournalService, JournalConfiguration, JournalTemplate } from './journals-contracts';
 
 const count = z.number().int().nonnegative();
 const instant = z.string().datetime({ offset: true });
