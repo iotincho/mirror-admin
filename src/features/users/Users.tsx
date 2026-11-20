@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { Alert, Box, Card, Chip, Divider, FormControlLabel, Stack, Switch, Typography, useMediaQuery } from '@mui/material';
+import { Alert, Box, Card, Chip, FormControlLabel, Stack, Switch, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
 import type { Theme } from '@mui/material';
 import { DataTable, List, SearchInput, SelectInput, Show, ShowButton, SimpleList, useRefresh, useRecordContext, useUpdate, useNotify } from 'react-admin';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Button } from '@mui/material';
 import type { AdminUser } from '../../providers/contracts';
 import { PageHeading } from '../../app/PageHeading';
 import { formatCount, formatInstant } from '../dashboard/format';
+import { Journals } from './journals/Journals';
 
 function AccountState({ user }: { user: AdminUser }) {
   return <Chip size="small" variant="outlined" color={user.is_active ? 'success' : 'default'} label={user.is_active ? 'Habilitada' : 'Deshabilitada'} sx={{ fontSize: 11 }} />;
@@ -73,14 +74,18 @@ function LaboratoryAccess({ user }: { user: AdminUser }) {
 
 function UserDetails() {
   const user = useRecordContext<AdminUser>();
+  const [search, setSearch] = useSearchParams();
+  const tab = search.get('tab') === 'journals' ? 'journals' : 'summary';
   if (!user) return null;
   return <Box p={{ xs: 2.5, md: 4 }}>
     <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2} mb={3}><Box minWidth={0}><Typography variant="h2" component="h2" sx={{ overflowWrap: 'anywhere' }}>{user.email}</Typography><Typography variant="body2" color="text.secondary" mt={1}>Identidad de la cuenta</Typography></Box><AccountState user={user} /></Stack>
-    <Divider sx={{ mb: 3 }} /><Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+    <Tabs value={tab} onChange={(_, value) => setSearch(value === 'journals' ? { tab: 'journals' } : {}, { replace: true })} aria-label="Detalle de cuenta" sx={{ borderBottom: '1px solid', borderColor: 'divider', mb: tab === 'summary' ? 3 : 0 }}><Tab value="summary" label="Resumen" id="account-summary-tab" aria-controls="account-summary-panel" /><Tab value="journals" label="Journals" id="account-journals-tab" aria-controls="account-journals-panel" /></Tabs>
+    {tab === 'journals' ? <Box role="tabpanel" id="account-journals-panel" aria-labelledby="account-journals-tab"><Journals key={user.id} user={user} /></Box> : <Box role="tabpanel" id="account-summary-panel" aria-labelledby="account-summary-tab"><Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
       <DetailItem label="Identificador" value={user.id} /><DetailItem label="Fecha de alta" value={formatInstant(user.created_at)} /><DetailItem label="Última actividad" value={formatInstant(user.last_activity_at)} /><DetailItem label="Notas existentes" value={formatCount(user.notes_count)} />
     </Box>
     <LaboratoryAccess key={user.id} user={user} />
     <Card variant="outlined" sx={{ mt: 4, p: 2, bgcolor: 'background.default' }}><Typography variant="body2" color="text.secondary">El contenido de las notas y los audios está fuera de este panel. Una fecha desconocida no implica que la cuenta no haya tenido actividad.</Typography></Card>
+    </Box>}
   </Box>;
 }
 

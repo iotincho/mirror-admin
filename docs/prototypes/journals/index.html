@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Journals · Prototipo de administración · El Espejo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='27' font-size='30' fill='%23b8d6ce'%3E◒%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="prototype.css">
+</head>
+<body>
+  <a class="skip" href="#content">Ir al contenido</a>
+  <div class="app-shell" id="app-shell">
+    <header class="appbar">
+      <button class="icon-button" data-action="menu" aria-label="Abrir navegación" aria-expanded="false" id="menu-button"></button>
+      <span>El Espejo <span class="slash">/</span> Administración</span>
+      <span class="pill gold prototype-badge">Prototipo · Datos ficticios</span>
+    </header>
+    <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+      <div class="wordmark"><span aria-hidden="true">◒</span><div>el espejo<small>ADMINISTRACIÓN</small></div></div>
+      <p class="eyebrow muted">GENERAL</p>
+      <a href="#dashboard" class="nav-link" data-page="dashboard"><span data-icon="grid"></span>Dashboard</a>
+      <a href="#users" class="nav-link selected" data-page="users"><span data-icon="users"></span>Usuarios</a>
+      <div class="sidebar-note"><span data-icon="shield"></span><strong>Una mirada a la plataforma</strong><p>Configurá el acompañamiento desde cada cuenta.</p><div class="rule"></div><small>El contenido personal permanece en la app.</small></div>
+    </aside>
+    <main id="content" tabindex="-1"></main>
+  </div>
+  <aside class="review-tools" aria-label="Controles de revisión del prototipo">
+    <div><span class="review-dot"></span><strong>Revisión del diseño</strong><span class="review-description">Simulación local · 3 nov 2026</span></div>
+    <div class="review-controls"><label for="scenario">Escenario</label><select id="scenario">
+      <option value="active">Recorrido activo</option><option value="empty">Sin recorrido · Activación</option>
+      <option value="paused">Recorrido pausado</option><option value="completed">Recorrido completado</option>
+      <option value="closed">Recorrido cerrado</option><option value="review">Preguntas pendientes de revisión</option>
+      <option value="conflict">Conflicto al guardar</option><option value="conflict-field">Conflicto en un mismo campo</option><option value="save-error">Error al guardar</option>
+      <option value="ambiguous">Confirmación de guardado perdida</option><option value="loading">Cargando</option>
+      <option value="error">Error de carga</option><option value="disabled">Funcionalidad deshabilitada</option>
+      <option value="inactive">Cuenta deshabilitada</option><option value="missing">Cuenta no encontrada</option>
+    </select><button class="icon-button" data-action="reset" aria-label="Reiniciar escenario" title="Reiniciar escenario"><span data-icon="refresh"></span></button></div>
+  </aside>
+  <dialog id="sheet" class="sheet" aria-labelledby="sheet-title"></dialog>
+  <dialog id="modal" class="modal" aria-labelledby="modal-title"></dialog>
+  <div id="toast" role="status" class="toast" hidden></div>
+  <script src="prototype.js"></script>
+</body>
+</html>

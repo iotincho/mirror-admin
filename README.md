@@ -26,11 +26,11 @@ Esta etapa no incorpora autenticación, roles ni claves administrativas, según 
 ```sh
 # Desde mirror-core, con DATABASE_URL y WORKSPACES_PATH configurados:
 .venv/bin/python -m alembic upgrade head
-.venv/bin/python -m src.administration.sync
-.venv/bin/python -m uvicorn src.admin_main:app --host 127.0.0.1 --port 8001
+.venv/bin/python -m src.bootstrap.inventory_sync
+.venv/bin/python -m uvicorn src.bootstrap.administration:app --host 127.0.0.1 --port 8001
 
 # En otro proceso de mirror-core, mantener el inventario actualizado:
-.venv/bin/python -m src.administration.sync --interval 30
+.venv/bin/python -m src.bootstrap.inventory_sync --interval 30
 ```
 
 El adaptador consume `/api/admin` en el mismo origen; el proxy de desarrollo apunta a http://127.0.0.1:8001. Copiar `.env.example` a `.env.local` si se necesita ajustar `ADMIN_API_PROXY_TARGET` (solo servidor) o `VITE_ADMIN_API_BASE` (ruta pública relativa).
@@ -59,6 +59,10 @@ Preview sirve el build en http://127.0.0.1:4176 y requiere la API detrás de un 
 
 ## Organización
 
+Diseño aprobado: [prototipo navegable de Journals](docs/prototypes/journals/README.md).
+La interfaz conectada se implementa en `src/features/users/journals/` con el mismo
+alcance; el prototipo independiente conserva los datos ficticios de revisión.
+
 - `src/app`: React-admin, layout, navegación y traducciones.
 - `src/features/dashboard`: métricas, gráfico accesible y tabla diaria.
 - `src/features/users`: listado, detalle y permiso de Laboratorio por cuenta.
@@ -78,7 +82,8 @@ docker build -f Dockerfile.prod -t mirror-admin:lan-validation .
 
 La imagen sirve el build con Nginx sin root en el puerto 8080. Requiere
 `ADMIN_ALLOWED_HOSTS` con hosts exactos separados por espacios y resolver
-`admin-api:8000` en su red Docker. Preserva `/api/admin/*`; admite GET/HEAD y, exclusivamente para `/api/admin/users/{id}/laboratory`, PATCH.
+`admin-api:8000` en su red Docker. Preserva `/api/admin/*`; admite GET/HEAD y
+escrituras sólo en las rutas declaradas de Laboratorio y Journals.
 Conserva el host y el puerto del navegador para comprobar el origen de la mutación. No contiene demo, credenciales ni servidor de desarrollo.
 HTML/API tienen `no-store`; assets con hash tienen caché inmutable.
 
@@ -109,7 +114,7 @@ API pública, workers, dispatcher y admin-api. La capacidad efectiva requiere el
 interruptor global y `user.laboratory_enabled=true`; por defecto todas las cuentas
 quedan sin acceso. El permiso no habilita una cuenta desactivada.
 
-La única escritura habilitada en el panel y en su proxy es
+La escritura del permiso de Laboratorio en el panel y su proxy es
 `PATCH /api/admin/users/{id}/laboratory` con `{"laboratory_enabled": true|false}`.
 El backend rechaza campos extra, booleanos convertidos y solicitudes de otro origen.
 Se mantiene el aislamiento local/LAN y la API pública no registra rutas de admin.
@@ -129,3 +134,51 @@ abierto, ejecutar `node tests/integration/laboratory-browser.cjs`. Acepta
 `ADMIN_LABORATORY_ORIGIN`, `LABORATORY_PLAYWRIGHT_MODULE`,
 `LABORATORY_CHROMIUM_PATH` y `ADMIN_LABORATORY_SCREENSHOTS`. La API se simula en ese
 recorrido; las pruebas de SQL/autorización reales pertenecen a mirror-core.
+
+
+## Journals
+
+En **Usuarios → Cuenta → Journals** se puede activar un template instalado,
+revisar el calendario, ajustar etapas/propósito, revisar las preguntas de respaldo,
+pausar, reanudar, avanzar, cerrar y consultar revisiones. Implementación local de
+etapa 5 sobre el diseño aprobado; no se desplegó esta versión ni se habilitó el flag.
+
+Requiere mirror-core con la API administrativa de Journals y migración hasta
+`20261103_25`. Compartir `JOURNALS_ENABLED` entre API pública, workers, dispatcher
+y admin-api; permanece `false` por defecto. El dispatcher instala los templates.
+La demo informa que esta capacidad requiere el modo API; no simula guardados reales.
+El [contrato HTTP](docs/api-contract.md#journals) enumera rutas y recuperación.
+Actualizar la imagen del panel/proxy junto con el core cuando se autorice el despliegue.
+
+Los ajustes sólo se informan como guardados después del recibo confirmado. Una
+respuesta perdida conserva la solicitud y la clave idempotente por cuenta, en
+memoria durante la sesión; comprobar su resultado antes de recargar o cerrar.
+Los cambios no se mezclan entre cuentas. Un conflicto conserva el borrador y
+permite comparar versiones. El historial no muestra intención, notas o audio.
+
+Validación: pruebas de proveedor/editor, lint, tipos, build, `verify:build` e imagen
+Docker. Chrome recorrió el build contra API y PostgreSQL reales desechables a
+320/390/768/1440 px: edición, revisión del respaldo, recarga, cambio de cuenta,
+respuesta perdida, conflicto, activación y ciclo de vida. Capturas y resultado en
+[docs/validation/journals-2026-11-03](docs/validation/journals-2026-11-03/result.json).
+
+La revisión opt-in de `tests/integration/journals-browser.cjs` requiere tres
+cuentas ficticias `journal-pilot-1/2/3@example.com`, con los UUID sintéticos del
+script, API con Journals habilitado y PostgreSQL desechable migrado. La primera
+cuenta debe tener un recorrido activo con una etapa completada; la segunda se
+usa para activación/cierre. Nunca apuntar ese recorrido a cuentas reales.
+
+```sh
+JOURNALS_BROWSER_SYNTHETIC=1 JOURNALS_BROWSER_ORIGIN=http://127.0.0.1:18766 \
+JOURNALS_PLAYWRIGHT_MODULE=/ruta/a/playwright \
+  node tests/integration/journals-browser.cjs
+
+JOURNALS_PROXY_SYNTHETIC=1 \
+  python3 tests/integration/journals-proxy.py
+```
+
+El smoke de proxy usa la imagen local `mirror-admin:journals-stage5` (configurable
+con `JOURNALS_PROXY_IMAGE`), `python:3.14-slim` y `nginx:1.27-alpine`, ya disponibles.
+Crea y elimina sus propias redes/contenedores con upstream sintético; comprueba
+allowlist, Host/puerto, idempotencia y bloqueo administrativo del gateway público.
+No publica imágenes ni opera servicios del destino.

@@ -53,7 +53,7 @@ const assert=require('node:assert/strict'), fs=require('node:fs');
   if(width===390)await page.screenshot({path:out+'/account-mobile.png',fullPage:true});
  }
  await page.goto(origin+'/#/users');
- await page.getByText('Usuarios',{exact:true}).first().waitFor();
+ await page.getByRole('heading',{name:'Usuarios',exact:true}).waitFor();
  await page.getByText('martin@example.com',{exact:true}).waitFor();
  await page.screenshot({path:out+'/users-desktop.png',fullPage:true});
  await page.setViewportSize({width:320,height:844});
