@@ -6,6 +6,30 @@ import { adjustment, createDraft } from '../features/users/journals/editor';
 
 const owner = '10000000-0000-4000-8000-000000000006', key = '50000000-0000-4000-8000-000000000001';
 describe('contrato HTTP de Journals', () => {
+  it('carga templates legados y el template v3 con su descripción breve', async () => {
+    const fixture = configuration();
+    const template = { id: fixture.run.template_id, version: 2, name: fixture.run.name, purpose: fixture.run.purpose, instructions: fixture.instructions, stages: fixture.stages.map(stage => stage.definition), catalogs: fixture.catalogs };
+    const current = { ...template, version: 3, short_description: 'Dale forma a tu intención.' };
+    const request = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ items: [template, current] }));
+    const templates = await createApiServices('/api/admin', request).journalService.templates();
+    expect(templates).toHaveLength(2);
+    expect(templates[0].short_description).toBeUndefined();
+    expect(templates[1].short_description).toBe(current.short_description);
+  });
+  it('lee recorridos y previsualizaciones con y sin descripción breve', async () => {
+    const legacy = configuration();
+    const current = { ...legacy, run: { ...legacy.run, template_version: 3, short_description: 'Dale forma a tu intención.' } };
+    const cleared = { ...legacy, run: { ...legacy.run, short_description: null } };
+    const account = { enabled: true, account_active: true, workspace_active: true, server_now: legacy.started_at, items: [legacy, current], total: 2 };
+    const request = vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json(account)).mockResolvedValueOnce(Response.json(current)).mockResolvedValueOnce(Response.json(cleared));
+    const service = createApiServices('/api/admin', request).journalService;
+    const result = await service.account(owner);
+    expect(result.items[0].run.short_description).toBeUndefined();
+    expect(result.items[1].run.short_description).toBe(current.run.short_description);
+    const preview = await service.previewActivation(owner, { template_id: current.run.template_id, template_version: 3, timezone: 'UTC' });
+    expect(preview.run.short_description).toBe(current.run.short_description);
+    expect((await service.detail(owner, cleared.run.id)).run.short_description).toBeNull();
+  });
   it('propaga cancelación/no-store en lecturas y valida respuestas privadas incompatibles', async () => {
     const request = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ ...configuration(), intention: 'PRIVATE_PERSONAL_CONTENT' }));
     const service = createApiServices('/api/admin', request).journalService;

@@ -90,6 +90,10 @@ Prefijo `/api/admin`. Schemas específicos y estrictos en
 `src/providers/journals-contracts.ts`; el proveedor no convierte errores en fixtures
 ni muestra bodies libres del servidor. Las consultas aceptan `AbortSignal` y
 usan `cache: no-store`. Las rutas se componen sólo en la API administrativa del core.
+Los templates y recorridos pueden incluir `short_description`, metadato opcional
+de presentación de hasta 160 caracteres; su ausencia o `null` es compatible con
+respuestas anteriores. La propiedad se copia al activar y no contiene la intención
+personal. Los demás campos siguen sujetos a validación estricta.
 
 | Método y ruta | Uso |
 | --- | --- |
