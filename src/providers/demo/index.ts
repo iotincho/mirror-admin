@@ -3,10 +3,12 @@ import type { DashboardService } from '../contracts';
 import { createUserProvider } from '../users-provider';
 import { selectUsers } from '../users-query';
 import { demoDashboard, demoUsers } from './fixtures';
+import { unavailableJournalService } from '../journals';
 
 export function createDemoServices() {
   const users = demoUsers.map(user => ({ ...user }));
   return {
+    journalService: unavailableJournalService(),
     dataProvider: createUserProvider({
       async list(query) { return selectUsers(users, query); },
       async setLaboratory(id, enabled) {

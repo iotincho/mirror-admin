@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "checks": [
+    "Vista y editor sin desbordamiento a 320/390/768/1440 px",
+    "Etapa completada de sólo lectura",
+    "Cambio de objetivo con revisión explícita del respaldo antes de guardar",
+    "Activación desde template con calendario, zona y confirmación",
+    "Reanudación conserva tiempo restante y desplaza dos días; pausa explícita",
+    "Avance, cierre y nueva instancia con recorrido anterior conservado",
+    "Validación de duración, agregar/reordenar/quitar futura y fechas desplazadas",
+    "Error, revisión concurrente sin perder borrador y recuperación de confirmación perdida",
+    "Estados de revisión, cierre, carga, error, funcionalidad/cuenta deshabilitadas e inexistencia",
+    "Historial de configuración y snapshot de sólo lectura"
+  ],
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "browserErrors": [],
+  "externalRequests": 0,
+  "backendConnected": false
+}
