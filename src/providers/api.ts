@@ -4,11 +4,20 @@ import { ActivitySchema, SummarySchema, UserListSchema, UserSchema } from './con
 import type { DashboardService } from './contracts';
 import { createUserProvider } from './users-provider';
 import { queryString } from './users-query';
+import { createJournalService } from './journals';
+import { JournalRequestError } from './journals-contracts';
 
 export function createApiServices(base: string, request: typeof fetch = fetch) {
   async function get<T>(path: string, schema: z.ZodType<T>, signal?: AbortSignal, mutation?: RequestInit): Promise<T> {
-    const response = await request(`${base}${path}`, { signal, cache: 'no-store', ...mutation, headers: { Accept: 'application/json', ...mutation?.headers } });
-    if (!response.ok) throw new HttpError(`La API administrativa respondió ${response.status}.`, response.status);
+    const response = await request(`${base}${path}`, { signal, cache: 'no-store', credentials: 'omit', ...mutation, headers: { Accept: 'application/json', ...mutation?.headers } });
+    if (!response.ok) {
+      if (path.includes('/journals')) {
+        let code: unknown;
+        try { code = (await response.json()).detail; } catch { /* Only known semantic codes are exposed. */ }
+        throw new JournalRequestError(response.status, code);
+      }
+      throw new HttpError(`La API administrativa respondió ${response.status}.`, response.status);
+    }
     let body: unknown;
     try { body = await response.json(); }
     catch { throw new HttpError('La API devolvió una respuesta que no es JSON válido.', 502); }
@@ -33,5 +42,5 @@ export function createApiServices(base: string, request: typeof fetch = fetch) {
       return { summary, activity: activity.items };
     },
   };
-  return { dataProvider, dashboardService };
+  return { dataProvider, dashboardService, journalService: createJournalService(get) };
 }

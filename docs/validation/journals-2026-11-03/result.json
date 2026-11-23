@@ -1,0 +1,34 @@
+{
+  "checks": [
+    "Vista y editor con SQL real a 320/390/768/1440 px",
+    "Etapa completada de sólo lectura",
+    "Ajuste y aprobación del respaldo persistidos tras recarga",
+    "Respuesta perdida tras commit: misma clave, sin duplicados y aislada entre cuentas",
+    "Revisión concurrente combina borrador local y duración del servidor",
+    "Historial y snapshot de revisión propios",
+    "Activación real, pausa, reanudación y cierre con recibos confirmados"
+  ],
+  "browserErrors": [],
+  "database": "disposable PostgreSQL",
+  "backend": "real administration API",
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "providersCalled": false,
+  "lostResponseReplayedOnce": true,
+  "proxy": {
+    "passed": true,
+    "admin_allowed": 9,
+    "admin_blocked": 9,
+    "public_blocked": 24,
+    "host_and_idempotency_preserved": true,
+    "runtime_non_root": true
+  },
+  "syntheticOnly": true,
+  "prototypeApproved": true,
+  "laboratoryRegression": true,
+  "unitTests": 29
+}

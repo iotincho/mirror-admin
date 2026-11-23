@@ -1,0 +1,7 @@
+import type { JournalConfiguration } from './journals-contracts';
+
+export function configuration(): JournalConfiguration {
+  const definitions = ['explore', 'meaning', 'daily-life'].map((key, i) => ({ key, name: `Etapa ${i + 1}`, objective: `Objetivo ${i + 1}`, instructions: '', duration_days: 7 }));
+  const stages = definitions.map((definition, i) => ({ id: `30000000-0000-4000-8000-00000000000${i + 1}`, definition, starts_at: `2026-11-${String(3 + i * 7).padStart(2, '0')}T00:00:00Z`, ends_at: `2026-11-${String(10 + i * 7).padStart(2, '0')}T00:00:00Z` }));
+  return { run: { id: '20000000-0000-4000-8000-000000000001', template_id: '40000000-0000-4000-8000-000000000001', template_version: 2, revision: 1, name: 'Recorrido sintético', purpose: 'Explorar una dirección personal', timezone: 'UTC', status: 'active', current_stage_id: stages[0].id, stages: stages.map(s => ({ id: s.id, name: s.definition.name, objective: s.definition.objective, duration_days: 7, starts_at: s.starts_at, ends_at: s.ends_at })) }, stages, instructions: '', catalogs: stages.map(s => ({ stage_key: s.definition.key, goal_hash: 'a'.repeat(64), prompts: [{ key: 'stable-topic', gentle: '¿Qué tenés presente?', middle: '¿Qué querés explorar?', deep: '¿Qué significa eso para vos?' }] })), catalog_review_required: [], started_at: stages[0].starts_at, updated_at: stages[0].starts_at, paused_at: null, ended_at: null, change: 'activation', origin: 'administration', editable_stage_id: stages[0].id };
+}
