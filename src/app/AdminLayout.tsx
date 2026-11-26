@@ -43,6 +43,7 @@ export function AdminLayout(props: LayoutProps) {
   const [, setSidebarOpen] = useSidebarState();
   useEffect(() => { if (mobile) setSidebarOpen(false); }, [mobile, setSidebarOpen]);
   return <Layout {...props} appBar={AdminAppBar} menu={AdminMenu} sidebar={AdminSidebar} sx={{
+    minWidth: 0,
     '& .RaLayout-appFrame': { marginTop: '70px' },
     '& .RaLayout-content': { px: { xs: 2, sm: 3, lg: 5 }, pt: { xs: 3, md: 4 }, pb: 4, minWidth: 0 },
     '& .RaSidebar-docked .RaSidebar-fixed': { borderRight: '1px solid', borderColor: 'divider', bgcolor: '#142124', width: 'inherit', height: 'calc(100dvh - 70px)', overflowY: 'auto' },

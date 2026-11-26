@@ -70,9 +70,30 @@ Fechas ISO 8601 con zona horaria o null. Conteos enteros no negativos o null cua
 
 Una fila por día, orden ascendente, agrupada en Buenos Aires. Días sin cobertura: null, sin actividad medida: 0. Una serie vacía muestra estado vacío. Resumen y serie deben corresponder al período solicitado.
 
+## Consumo de IA
+
+`GET /api/admin/usage?period_days=30` devuelve `period_days`, `user_id`,
+`timezone`, `updated_at`, `coverage`, `totals`, `daily`, `by_model` y `by_feature`.
+Acepta 7 o 30 días de Buenos Aires. Con `user_id`, devuelve los agregados de esa
+cuenta y responde 404 si no existe. El resumen global devuelve `user_id: null`.
+
+Cada agregado contiene `attempts`, `unmeasured_attempts`, `input_tokens`,
+`output_tokens`, `total_tokens` y `duration_seconds`. Los días añaden `date` y
+`coverage`. Las filas de modelo añaden `provider` y `model`. Las de funcionalidad
+añaden `feature`. `coverage` puede ser `complete`, `partial` o `unavailable`.
+Los intentos sin total de tokens ni duración medidos cuentan en
+`unmeasured_attempts`. Una cantidad `null` se muestra como «Sin datos».
+La duración se convierte a minutos para su presentación en el panel.
+
+`GET /api/admin/usage/users?period_days=30&page=1&per_page=10` devuelve
+`period_days`, `page`, `per_page`, `total` y `items`. Cada fila incluye
+`user_id`, `email` y las cantidades anteriores. El ranking se ordena por tokens
+conocidos y pagina cuentas con intentos registrados. El total global también
+incluye los intentos sin cuenta atribuible.
+
 ## Comportamiento del cliente
 
-El adaptador valida respuestas con Zod, respeta AbortSignal, propaga errores HTTP y rechaza formatos incompatibles. Los errores no muestran bodies arbitrarios del servidor. No hay fallback de API a demo. Mutaciones y recursos no soportados se rechazan sin emitir solicitudes. No se envían ni consumen notas, audios, tokens o credenciales.
+El adaptador valida respuestas con Zod, respeta AbortSignal, propaga errores HTTP y rechaza formatos incompatibles. Los errores no muestran bodies arbitrarios del servidor. No hay fallback de API a demo. Mutaciones y recursos no soportados se rechazan sin emitir solicitudes. Las respuestas contienen metadatos y cantidades agregadas, sin notas, audios originales, credenciales ni tokens de sesión.
 
 
 ## Cobertura y sincronización

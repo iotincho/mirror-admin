@@ -41,6 +41,11 @@ Para revisar la interfaz sin backend: `VITE_DATA_MODE=demo npm run dev`. La demo
 
 Actividad de la PWA: habilitar `PLATFORM_ACTIVITY_ENABLED=true` en la API pública junto con la PWA actualizada. Es opt-in y comienza a medir desde la primera observación; los períodos anteriores no se inventan. La configuración predeterminada no registra actividad.
 
+El dashboard muestra consumo de IA por día, modelo y funcionalidad, con un ranking
+paginado por cuenta. Cada cuenta tiene una pestaña **Consumo de IA**. Los períodos
+de 7 y 30 días usan el calendario de Buenos Aires. La cobertura comienza al activar
+la medición en `mirror-core`, y las cifras sólo están disponibles en el modo API.
+
 ## Verificaciones
 
 ```sh
