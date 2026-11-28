@@ -6,6 +6,7 @@ import { createUserProvider } from './users-provider';
 import { queryString } from './users-query';
 import { createJournalService } from './journals';
 import { JournalRequestError } from './journals-contracts';
+import { createAiUsageService } from './ai-usage';
 
 export function createApiServices(base: string, request: typeof fetch = fetch) {
   async function get<T>(path: string, schema: z.ZodType<T>, signal?: AbortSignal, mutation?: RequestInit): Promise<T> {
@@ -42,5 +43,5 @@ export function createApiServices(base: string, request: typeof fetch = fetch) {
       return { summary, activity: activity.items };
     },
   };
-  return { dataProvider, dashboardService, journalService: createJournalService(get) };
+  return { dataProvider, dashboardService, journalService: createJournalService(get), usageService: createAiUsageService(get) };
 }

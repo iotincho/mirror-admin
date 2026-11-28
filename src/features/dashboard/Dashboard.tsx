@@ -7,6 +7,7 @@ import type { Period } from '../../providers/contracts';
 import { services } from '../../providers';
 import { settings } from '../../config/settings';
 import { PageHeading } from '../../app/PageHeading';
+import { AiUsagePanel } from '../usage/AiUsagePanel';
 import { ActivityChart } from './ActivityChart';
 import { formatCount, formatInstant } from './format';
 
@@ -48,6 +49,7 @@ export function Dashboard() {
       {summary.coverage.inventory_synced_at && <Typography variant="caption" color="text.secondary" display="block" mt={1}>Inventario sincronizado al {formatInstant(summary.coverage.inventory_synced_at)}.</Typography>}
       <Typography variant="caption" color="text.secondary" display="block" mt={3}>{settings.dataMode === 'demo' ? 'Ejemplo ficticio actualizado al' : 'Datos actualizados al'} {formatInstant(summary.updated_at)} · Hora de Buenos Aires.</Typography>
     </>}
+    <AiUsagePanel period={period} />
     <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2, mt: 3 }}><Typography variant="body2" color="text.secondary"><Box component="strong" sx={{ color: 'primary.main', fontWeight: 500 }}>Privacidad por diseño.</Box> Este panel trabaja con metadatos. El contenido de las notas y los audios permanece fuera del acceso administrativo.</Typography></Box>
   </>;
 }
