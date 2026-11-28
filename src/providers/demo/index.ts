@@ -8,6 +8,7 @@ import { unavailableJournalService } from '../journals';
 export function createDemoServices() {
   const users = demoUsers.map(user => ({ ...user }));
   return {
+    usageService: null,
     journalService: unavailableJournalService(),
     dataProvider: createUserProvider({
       async list(query) { return selectUsers(users, query); },
